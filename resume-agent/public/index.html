@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resumalyze</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="liquid-bg" aria-hidden="true">
+    <span class="blob blob-a"></span>
+    <span class="blob blob-b"></span>
+    <span class="blob blob-c"></span>
+    <span class="grain"></span>
+  </div>
+
+  <header>
+    <div class="brand">
+      <div class="logo">R</div>
+      <div>
+        <h1>Resumalyze</h1>
+        <p class="subtitle">Job posting → screen CV → validate → match → shortlist for interview</p>
+      </div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" title="Toggle theme" type="button">🌙</button>
+  </header>
+
+  <main>
+    <div class="stats" id="stats">
+      <div class="stat-card" data-status="">
+        <span class="stat-value" id="stat-total">0</span>
+        <span class="stat-label">Total candidates</span>
+      </div>
+      <div class="stat-card status-shortlisted" data-status="shortlisted">
+        <span class="stat-value" id="stat-shortlisted">0</span>
+        <span class="stat-label">Shortlisted</span>
+      </div>
+      <div class="stat-card status-consider" data-status="consider">
+        <span class="stat-value" id="stat-consider">0</span>
+        <span class="stat-label">Consider</span>
+      </div>
+      <div class="stat-card status-rejected" data-status="rejected">
+        <span class="stat-value" id="stat-rejected">0</span>
+        <span class="stat-label">Rejected</span>
+      </div>
+      <div class="stat-card status-invalid" data-status="invalid">
+        <span class="stat-value" id="stat-invalid">0</span>
+        <span class="stat-label">Invalid</span>
+      </div>
+    </div>
+
+    <section class="card" id="job-card">
+      <h2>Stage 1 — Job Requisition</h2>
+      <form id="job-form">
+        <div class="row">
+          <input name="title" placeholder="Job title" required />
+          <input name="minExperienceYears" type="number" min="0" placeholder="Min years experience" />
+        </div>
+        <div class="tag-input" data-field="mustHaveSkills">
+          <div class="tags"></div>
+          <input type="text" placeholder="Must-have skill, press Enter" />
+        </div>
+        <div class="tag-input" data-field="niceToHaveSkills">
+          <div class="tags"></div>
+          <input type="text" placeholder="Nice-to-have skill, press Enter" />
+        </div>
+        <textarea name="description" placeholder="Job description (optional)" rows="2"></textarea>
+        <button type="submit">Create Job</button>
+      </form>
+
+      <div class="job-pills" id="job-pills"></div>
+      <p class="hint" id="job-hint">Create a job above, then submit candidates against it.</p>
+    </section>
+
+    <section class="card" id="candidate-card">
+      <h2>Stage 2 — New Candidate Application</h2>
+      <form id="candidate-form">
+        <div class="row">
+          <input name="name" placeholder="Full name" required />
+          <input name="email" type="email" placeholder="Email (optional if in resume text)" />
+        </div>
+        <input name="phone" placeholder="Phone (optional if in resume text)" />
+        <div class="dropzone" id="dropzone">
+          <textarea name="resumeText" id="resume-text" placeholder="Paste resume / CV text here, or drop a .txt file" rows="6" required></textarea>
+          <div class="dropzone-hint">Drag &amp; drop a .txt resume anywhere in this box</div>
+        </div>
+        <button type="submit">
+          <span class="btn-label">Submit Application</span>
+          <span class="spinner" hidden></span>
+        </button>
+      </form>
+      <p class="hint">Mention skills, "X years experience", and a degree (e.g. Bachelor/Master) for a richer screen.</p>
+    </section>
+
+    <section class="card" id="pipeline-card">
+      <h2>Stage 3-4 — Screened &amp; Matched Candidates <span class="placeholder-tag">PLACEHOLDER: ATS</span></h2>
+
+      <div class="pipeline-toolbar">
+        <div class="tabs" id="status-tabs">
+          <button class="tab active" data-filter="">All</button>
+          <button class="tab" data-filter="shortlisted">Shortlisted</button>
+          <button class="tab" data-filter="consider">Consider</button>
+          <button class="tab" data-filter="rejected">Rejected</button>
+          <button class="tab" data-filter="invalid">Invalid</button>
+        </div>
+        <input type="search" id="candidate-search" placeholder="Search by name…" />
+      </div>
+
+      <div class="table-scroll">
+      <table id="pipeline-table">
+        <thead>
+          <tr>
+            <th>Candidate</th>
+            <th class="sortable" id="sort-score">Score <span class="sort-arrow"></span></th>
+            <th>Status</th>
+            <th>Skills matched</th>
+            <th>Missing</th>
+            <th>Next action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p id="pipeline-empty" class="empty">No candidates yet.</p>
+    </section>
+
+    <section class="card feed shortlist" id="shortlist-card">
+      <h2>Shortlisted for Interview <span class="placeholder-tag">PLACEHOLDER: Calendar invite</span></h2>
+      <div class="feed-list" id="shortlist-feed"></div>
+      <p class="empty" id="shortlist-empty">No shortlisted candidates yet.</p>
+    </section>
+  </main>
+
+  <div id="detail-overlay" class="overlay" hidden>
+    <div class="detail-panel">
+      <button id="detail-close" class="icon-btn" type="button">✕</button>
+      <div id="detail-body"></div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
