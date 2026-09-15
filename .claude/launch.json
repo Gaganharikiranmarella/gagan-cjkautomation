@@ -4,8 +4,8 @@
     {
       "name": "lead-gen-agent",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["lead-gen-agent/server.js"],
-      "port": 3000
+      "runtimeArgs": ["lead-gen-agent/backend/server.js"],
+      "port": 4100
     },
     {
       "name": "resume-agent",

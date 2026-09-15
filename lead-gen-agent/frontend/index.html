@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lead Gen Agent</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">LG</div>
+      <div class="brand-text">
+        <strong>Lead Gen Agent</strong>
+        <span>Multi-channel outreach</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-view="leads">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Leads
+      </button>
+      <button class="nav-item" data-view="campaigns">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
+        Campaigns
+      </button>
+      <button class="nav-item" data-view="channels">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 18h.01"/></svg>
+        Channels
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <strong>Demo mode</strong><br/>
+      WhatsApp &amp; SMS are simulated. Wire up real API keys in <code>.env</code> any time — the UI and data model won't change.
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn btn-icon btn-ghost menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Overview of your leads and outreach performance</p>
+        </div>
+      </div>
+      <div id="topbarActions"></div>
+    </header>
+
+    <main class="content">
+
+      <!-- DASHBOARD -->
+      <section class="view active" id="view-dashboard">
+        <div class="grid grid-stats" id="dashStats"></div>
+
+        <div class="section-title">
+          <h2>Channels</h2>
+          <span class="hint">Connection status for every outreach method</span>
+        </div>
+        <div class="grid grid-channels" id="dashChannels"></div>
+
+        <div class="card panel">
+          <div class="section-title mt-0">
+            <h2>Recent activity</h2>
+            <span class="hint">Latest messages across all campaigns</span>
+          </div>
+          <div class="table-wrap" id="dashActivity"></div>
+        </div>
+      </section>
+
+      <!-- LEADS -->
+      <section class="view" id="view-leads">
+        <div class="toolbar">
+          <div class="search-box">
+            <span class="icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </span>
+            <input class="input" id="leadSearch" placeholder="Search leads by name, email, company..." />
+          </div>
+          <select class="input" id="leadStatusFilter" style="max-width:160px;">
+            <option value="">All statuses</option>
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="responded">Responded</option>
+            <option value="converted">Converted</option>
+            <option value="unsubscribed">Unsubscribed</option>
+          </select>
+          <div class="spacer"></div>
+          <button class="btn btn-secondary" id="openImportModal">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Import CSV
+          </button>
+          <button class="btn btn-primary" id="openAddLeadModal">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add lead
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap" id="leadsTableWrap"></div>
+        </div>
+      </section>
+
+      <!-- CAMPAIGNS -->
+      <section class="view" id="view-campaigns">
+        <div class="toolbar">
+          <div class="spacer"></div>
+          <button class="btn btn-primary" id="openNewCampaignModal">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New campaign
+          </button>
+        </div>
+        <div class="campaign-list" id="campaignList"></div>
+      </section>
+
+      <!-- CHANNELS -->
+      <section class="view" id="view-channels">
+        <div class="grid grid-channels" id="channelsGrid" style="margin-bottom:0;"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Add / Edit Lead Modal -->
+<div class="modal-backdrop" id="leadModalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="leadModalTitle">Add lead</h3>
+      <button class="btn btn-icon btn-ghost" data-close-modal="leadModalBackdrop">✕</button>
+    </div>
+    <form id="leadForm">
+      <div class="modal-body">
+        <input type="hidden" id="leadId" />
+        <div class="field-row">
+          <div class="field">
+            <label>Full name *</label>
+            <input class="input" id="leadName" required />
+          </div>
+          <div class="field">
+            <label>Company</label>
+            <input class="input" id="leadCompany" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Email</label>
+            <input class="input" type="email" id="leadEmail" />
+          </div>
+          <div class="field">
+            <label>Phone (for WhatsApp / SMS)</label>
+            <input class="input" id="leadPhone" placeholder="+1 555 000 0000" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Tags (comma separated)</label>
+          <input class="input" id="leadTags" placeholder="cold, referral, vip" />
+        </div>
+        <div class="field">
+          <label>Notes</label>
+          <textarea class="input" id="leadNotes" rows="2"></textarea>
+        </div>
+        <label class="checkbox-field">
+          <input type="checkbox" id="leadConsent" />
+          This person has opted in / consented to receive outreach messages
+        </label>
+        <p class="helper-text">Only leads with consent checked are eligible when a campaign sends.</p>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" data-close-modal="leadModalBackdrop">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save lead</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Import CSV Modal -->
+<div class="modal-backdrop" id="importModalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Import leads from CSV</h3>
+      <button class="btn btn-icon btn-ghost" data-close-modal="importModalBackdrop">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Upload a .csv file</label>
+        <input class="input" type="file" id="csvFileInput" accept=".csv,text/csv" />
+      </div>
+      <p class="helper-text">Expected columns: name, email, phone, company, tags, consentGiven (true/false). Or paste rows below.</p>
+      <div class="field">
+        <label>...or paste CSV text</label>
+        <textarea class="input" id="csvPasteInput" rows="6" placeholder="name,email,phone,company,tags,consentGiven
+Jane Doe,jane@acme.com,+15550001111,Acme Co,vip,true"></textarea>
+      </div>
+      <div id="csvPreview"></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-secondary" data-close-modal="importModalBackdrop">Cancel</button>
+      <button type="button" class="btn btn-primary" id="confirmImportBtn">Import leads</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Campaign Modal -->
+<div class="modal-backdrop" id="campaignModalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>New campaign</h3>
+      <button class="btn btn-icon btn-ghost" data-close-modal="campaignModalBackdrop">✕</button>
+    </div>
+    <form id="campaignForm">
+      <div class="modal-body">
+        <div class="field">
+          <label>Campaign name *</label>
+          <input class="input" id="campaignName" required placeholder="Spring outreach - warm leads" />
+        </div>
+        <div class="field">
+          <label>Channel *</label>
+          <select class="input" id="campaignChannel">
+            <option value="email">Email</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="sms">SMS</option>
+          </select>
+        </div>
+        <div class="field" id="campaignSubjectField">
+          <label>Subject (email only) *</label>
+          <input class="input" id="campaignSubject" placeholder="Quick question about {{company}}" />
+        </div>
+        <div class="field">
+          <label>Message template *</label>
+          <textarea class="input" id="campaignMessage" rows="5" placeholder="Hi {{firstName}}, ..."></textarea>
+          <div class="token-row" id="tokenRow"></div>
+        </div>
+        <p class="helper-text" id="recipientPreview">Checking eligible recipients…</p>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" data-close-modal="campaignModalBackdrop">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create campaign</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- WhatsApp QR Modal -->
+<div class="modal-backdrop" id="qrModalBackdrop">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-head">
+      <h3>Link WhatsApp</h3>
+      <button class="btn btn-icon btn-ghost" data-close-modal="qrModalBackdrop">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="qr-box">
+        <div class="qr-frame" id="qrFrame"></div>
+        <p class="qr-status" id="qrStatusText">Simulating QR scan…</p>
+        <p class="helper-text">Demo mode: no real WhatsApp account is contacted. Swap in a real provider in <code>.env</code> to replace this with an actual QR login.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="js/api.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/csv.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/leads.js"></script>
+<script src="js/campaigns.js"></script>
+<script src="js/channels.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
