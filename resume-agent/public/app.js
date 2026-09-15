@@ -1,6 +1,5 @@
-const jobForm = document.getElementById('job-form');
-const jobPillsEl = document.getElementById('job-pills');
-const jobHint = document.getElementById('job-hint');
+const roleGrid = document.getElementById('role-grid');
+const roleDetail = document.getElementById('role-detail');
 const candidateForm = document.getElementById('candidate-form');
 const submitBtn = candidateForm.querySelector('button[type="submit"]');
 const pipelineBody = document.querySelector('#pipeline-table tbody');
@@ -18,12 +17,14 @@ const detailBody = document.getElementById('detail-body');
 const detailClose = document.getElementById('detail-close');
 const toastContainer = document.getElementById('toast-container');
 
-let jobs = [];
-let activeJobId = null;
+let roles = [];
+let activeRoleId = null;
 let candidates = [];
 let invitesByCandidateId = {};
 let filterStatus = '';
 let searchTerm = '';
+let mailerSender = 'ghk7125@gmail.com';
+let mailerConfigured = false;
 let sortDir = 'desc';
 
 // ---------- Theme ----------
@@ -42,73 +43,6 @@ themeToggle.addEventListener('click', () => {
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('resumalyze-theme', next);
   themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
-});
-
-// ---------- Tag inputs (job skills) ----------
-const tagState = { mustHaveSkills: [], niceToHaveSkills: [] };
-document.querySelectorAll('.tag-input').forEach(wrapper => {
-  const field = wrapper.dataset.field;
-  const tagsEl = wrapper.querySelector('.tags');
-  const input = wrapper.querySelector('input');
-
-  function renderTags() {
-    tagsEl.innerHTML = '';
-    tagState[field].forEach((tag, i) => {
-      const chip = document.createElement('span');
-      chip.className = 'chip';
-      chip.innerHTML = `${escapeHtml(tag)} <button type="button" aria-label="Remove">✕</button>`;
-      chip.querySelector('button').addEventListener('click', () => {
-        tagState[field].splice(i, 1);
-        renderTags();
-      });
-      tagsEl.appendChild(chip);
-    });
-  }
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      const val = input.value.trim().toLowerCase();
-      if (val && !tagState[field].includes(val)) {
-        tagState[field].push(val);
-        renderTags();
-      }
-      input.value = '';
-    } else if (e.key === 'Backspace' && !input.value && tagState[field].length) {
-      tagState[field].pop();
-      renderTags();
-    }
-  });
-});
-
-// ---------- Job creation ----------
-jobForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const raw = Object.fromEntries(new FormData(jobForm).entries());
-  const payload = {
-    title: raw.title,
-    description: raw.description,
-    minExperienceYears: raw.minExperienceYears ? Number(raw.minExperienceYears) : 0,
-    mustHaveSkills: tagState.mustHaveSkills,
-    niceToHaveSkills: tagState.niceToHaveSkills,
-  };
-  try {
-    const res = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Failed to create job');
-    jobForm.reset();
-    tagState.mustHaveSkills = [];
-    tagState.niceToHaveSkills = [];
-    document.querySelectorAll('.tag-input .tags').forEach(t => t.innerHTML = '');
-    const job = await res.json();
-    toast(`Job "${job.title}" created`, 'success');
-    await refreshJobs(job.id);
-  } catch (err) {
-    toast(err.message, 'error');
-  }
 });
 
 // ---------- Dropzone (drag a .txt resume in) ----------
@@ -130,15 +64,65 @@ dropzone.addEventListener('drop', (e) => {
   reader.readAsText(file);
 });
 
+// ---------- Roles ----------
+async function loadRoles() {
+  const [roleList, mailerStatus] = await Promise.all([
+    fetch('/api/roles').then(r => r.json()),
+    fetch('/api/mailer-status').then(r => r.json()).catch(() => ({ configured: false, sender: mailerSender })),
+  ]);
+  roles = roleList;
+  mailerConfigured = mailerStatus.configured;
+  mailerSender = mailerStatus.sender || mailerSender;
+  renderMailerBanner();
+  activeRoleId = roles[0] ? roles[0].id : null;
+  renderRoleGrid();
+  renderRoleDetail();
+  await refreshCandidates();
+}
+
+function renderMailerBanner() {
+  const banner = document.getElementById('mailer-banner');
+  if (!banner) return;
+  banner.hidden = mailerConfigured;
+  banner.textContent = `📪 Live email notifications are off — set GMAIL_APP_PASSWORD on the server to actually send interview emails from ${mailerSender} to candidates scoring above 67%.`;
+}
+
+function renderRoleGrid() {
+  roleGrid.innerHTML = roles.map(r => `
+    <button type="button" class="role-pill ${r.id === activeRoleId ? 'active' : ''}" data-id="${r.id}">
+      ${escapeHtml(r.title)}
+    </button>
+  `).join('');
+  roleGrid.querySelectorAll('.role-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeRoleId = btn.dataset.id;
+      roleGrid.querySelectorAll('.role-pill').forEach(b => b.classList.toggle('active', b === btn));
+      renderRoleDetail();
+      refreshCandidates();
+    });
+  });
+}
+
+function renderRoleDetail() {
+  const role = roles.find(r => r.id === activeRoleId);
+  if (!role) { roleDetail.hidden = true; return; }
+  roleDetail.hidden = false;
+  roleDetail.innerHTML = `
+    <div class="role-detail-row"><span class="role-detail-label">Must-have</span> ${renderSkills(role.mustHaveSkills)}</div>
+    <div class="role-detail-row"><span class="role-detail-label">Nice-to-have</span> ${renderSkills(role.niceToHaveSkills)}</div>
+    <div class="role-detail-row"><span class="role-detail-label">Min. experience</span> ${role.minExperienceYears} year${role.minExperienceYears === 1 ? '' : 's'}</div>
+  `;
+}
+
 // ---------- Candidate submission ----------
 candidateForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!activeJobId) {
-    toast('Create or select a job first', 'error');
+  if (!activeRoleId) {
+    toast('Select a role first', 'error');
     return;
   }
   const data = Object.fromEntries(new FormData(candidateForm).entries());
-  data.jobId = activeJobId;
+  data.roleId = activeRoleId;
   setSubmitting(true);
   try {
     const res = await fetch('/api/candidates', {
@@ -165,33 +149,9 @@ function setSubmitting(isSubmitting) {
   submitBtn.querySelector('.spinner').hidden = !isSubmitting;
 }
 
-// ---------- Jobs ----------
-async function refreshJobs(selectId) {
-  jobs = await fetch('/api/jobs').then(r => r.json());
-  jobHint.style.display = jobs.length ? 'none' : 'block';
-  if (selectId) activeJobId = String(selectId);
-  else if (!activeJobId && jobs.length) activeJobId = String(jobs[0].id);
-  else if (jobs.length && !jobs.some(j => String(j.id) === activeJobId)) activeJobId = String(jobs[0].id);
-
-  jobPillsEl.innerHTML = jobs.map(j => `
-    <button type="button" class="job-pill ${String(j.id) === activeJobId ? 'active' : ''}" data-id="${j.id}">
-      ${escapeHtml(j.title)} · min ${j.minExperienceYears}y
-    </button>
-  `).join('');
-  jobPillsEl.querySelectorAll('.job-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeJobId = btn.dataset.id;
-      jobPillsEl.querySelectorAll('.job-pill').forEach(b => b.classList.toggle('active', b === btn));
-      refreshCandidates();
-    });
-  });
-
-  await refreshCandidates();
-}
-
 // ---------- Candidates / pipeline ----------
 async function refreshCandidates() {
-  if (!activeJobId) {
+  if (!activeRoleId) {
     candidates = [];
     invitesByCandidateId = {};
     renderStats();
@@ -200,8 +160,8 @@ async function refreshCandidates() {
     return;
   }
   const [allCandidates, invites] = await Promise.all([
-    fetch(`/api/candidates?jobId=${activeJobId}`).then(r => r.json()),
-    fetch(`/api/invites?jobId=${activeJobId}`).then(r => r.json()),
+    fetch(`/api/candidates?roleId=${activeRoleId}`).then(r => r.json()),
+    fetch(`/api/invites?roleId=${activeRoleId}`).then(r => r.json()),
   ]);
   candidates = allCandidates;
   invitesByCandidateId = Object.fromEntries(invites.map(i => [i.candidateId, i]));
@@ -271,15 +231,16 @@ function renderPipeline() {
   const list = visibleCandidates();
   pipelineBody.innerHTML = '';
   pipelineEmpty.style.display = list.length ? 'none' : 'block';
-  pipelineEmpty.textContent = candidates.length ? 'No candidates match this filter.' : 'No candidates yet.';
+  pipelineEmpty.textContent = candidates.length ? 'No candidates match this filter.' : 'No candidates yet for this role.';
   for (const c of list) {
     const tr = document.createElement('tr');
+    const mustHaveTotal = (c.matchedMustHave || []).length + (c.missingMustHave || []).length;
     tr.innerHTML = `
       <td><strong>${escapeHtml(c.name || '(unknown)')}</strong><br><span style="color:var(--muted)">${escapeHtml(c.email || '')}</span></td>
-      <td>${c.score ?? '—'}</td>
+      <td>${c.score ?? '—'}${c.score !== null && c.score > 67 ? `<span title="${c.emailSent ? 'Interview email sent' : 'Interview email not sent'}"> ${c.emailSent ? '📧' : '📪'}</span>` : ''}</td>
       <td class="status-${c.status}">${c.status}${c.issues && c.issues.length ? `<br><span style="font-weight:400;color:var(--muted)">${escapeHtml(c.issues.join('; '))}</span>` : ''}</td>
-      <td>${renderSkills(c.matchedMustHave)}${renderSkills(c.matchedNiceToHave)}</td>
-      <td>${renderSkills(c.missingMustHave)}</td>
+      <td>${mustHaveTotal ? renderCoverage(c.matchedMustHave.length, mustHaveTotal) : '—'}</td>
+      <td>${c.experienceFit ? `<span class="fit-${c.experienceFit}">${c.experienceFit === 'meets' ? 'Meets' : 'Below'} min.</span> <span style="color:var(--muted)">(${c.experienceYears ?? 0}y)</span>` : '—'}</td>
       <td>${escapeHtml(c.nextAction)}</td>
     `;
     tr.addEventListener('click', () => openDetail(c));
@@ -287,8 +248,18 @@ function renderPipeline() {
   }
 }
 
+function renderCoverage(matched, total) {
+  const pct = total ? Math.round((matched / total) * 100) : 0;
+  return `
+    <div class="coverage">
+      <div class="coverage-bar"><div class="coverage-fill" style="width:${pct}%"></div></div>
+      <span class="coverage-label">${matched}/${total}</span>
+    </div>
+  `;
+}
+
 function renderSkills(skills) {
-  return (skills || []).map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('');
+  return (skills || []).map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('') || '<span style="color:var(--muted)">—</span>';
 }
 
 function renderShortlist(items) {
@@ -298,7 +269,7 @@ function renderShortlist(items) {
     const div = document.createElement('div');
     div.className = 'feed-item';
     div.innerHTML = `
-      <div class="fi-top"><span>${escapeHtml(c.name)} · ${escapeHtml(c.jobTitle)}</span><span>Score ${c.score}</span></div>
+      <div class="fi-top"><span>${escapeHtml(c.name)} · ${escapeHtml(c.roleTitle)}</span><span>Score ${c.score}</span></div>
       <div class="fi-summary">${escapeHtml(c.nextAction)}</div>
     `;
     div.addEventListener('click', () => openDetail(c));
@@ -311,15 +282,25 @@ function openDetail(c) {
   const invite = invitesByCandidateId[c.id];
   detailBody.innerHTML = `
     <h3>${escapeHtml(c.name || '(unknown)')}</h3>
-    <div class="detail-meta">${escapeHtml(c.email || 'no email')} · ${escapeHtml(c.phone || 'no phone')} · applied for ${escapeHtml(c.jobTitle)}</div>
+    <div class="detail-meta">${escapeHtml(c.email || 'no email')} · ${escapeHtml(c.phone || 'no phone')} · applied for ${escapeHtml(c.roleTitle)}</div>
     <div class="detail-section">
-      <h4>Match</h4>
+      <h4>Analysis</h4>
       <p><span class="status-${c.status}">${c.status}</span> · score ${c.score ?? '—'} · ${c.experienceYears ?? 0} yrs experience · ${escapeHtml(c.educationLevel || 'Unspecified')}</p>
+      ${c.analysis ? `<p>${escapeHtml(c.analysis)}</p>` : ''}
       ${c.matchedMustHave && c.matchedMustHave.length ? `<p>Matched must-have: ${renderSkills(c.matchedMustHave)}</p>` : ''}
+      ${c.missingMustHave && c.missingMustHave.length ? `<p>Missing must-have: ${renderSkills(c.missingMustHave)}</p>` : ''}
       ${c.matchedNiceToHave && c.matchedNiceToHave.length ? `<p>Matched nice-to-have: ${renderSkills(c.matchedNiceToHave)}</p>` : ''}
-      ${c.missingMustHave && c.missingMustHave.length ? `<p>Missing: ${renderSkills(c.missingMustHave)}</p>` : ''}
       ${c.issues && c.issues.length ? `<p>Issues: ${escapeHtml(c.issues.join('; '))}</p>` : ''}
     </div>
+    ${c.score !== null && c.score > 67 ? `
+      <div class="detail-section">
+        <h4>Interview notification email</h4>
+        <p class="email-status ${c.emailSent ? 'sent' : 'pending'}">
+          ${c.emailSent
+            ? `✅ Sent from ${escapeHtml(mailerSender)} to ${escapeHtml(c.email)}`
+            : `⚠️ ${escapeHtml(c.emailNote || 'Not sent')}`}
+        </p>
+      </div>` : ''}
     ${invite ? `
       <div class="detail-section">
         <h4>Interview invite draft</h4>
@@ -353,4 +334,4 @@ function escapeHtml(str) {
   }[c]));
 }
 
-refreshJobs();
+loadRoles();

@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const { screenResume, validateCandidate, matchToJob, draftInterviewInvite } = require('./lib/pipeline');
+const { screenResume, validateCandidate, matchToRole, draftInterviewInvite } = require('./lib/pipeline');
+const { listRoles, getRole } = require('./lib/jobRoles');
+const { sendInterviewNotice, isConfigured, SENDER } = require('./lib/mailer');
 const {
-  saveJob, listJobs, getJob,
   saveCandidate, listCandidates, getCandidate,
   postInvite, listInvites,
 } = require('./lib/store');
@@ -11,35 +13,26 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Stage 1 — New Job Requisition (trigger)
-app.post('/api/jobs', (req, res) => {
-  const { title, description, mustHaveSkills, niceToHaveSkills, minExperienceYears } = req.body || {};
-  if (!title) {
-    return res.status(400).json({ error: 'title is required' });
-  }
-  const job = saveJob({
-    title,
-    description: description || '',
-    mustHaveSkills: mustHaveSkills || [],
-    niceToHaveSkills: niceToHaveSkills || [],
-    minExperienceYears: minExperienceYears || 0,
-  });
-  res.status(201).json(job);
+// Stage 1 — Role catalog (fixed baseline requirements, not user-created)
+app.get('/api/roles', (req, res) => {
+  res.json(listRoles());
 });
 
-app.get('/api/jobs', (req, res) => {
-  res.json(listJobs());
+app.get('/api/mailer-status', (req, res) => {
+  res.json({ configured: isConfigured(), sender: SENDER });
 });
 
 // Stage 2 — New Candidate Application (trigger) -> runs the whole pipeline synchronously
-app.post('/api/candidates', (req, res) => {
-  const { name, email, phone, resumeText, jobId } = req.body || {};
-  if (!resumeText || !jobId) {
-    return res.status(400).json({ error: 'resumeText and jobId are required' });
+const EMAIL_SCORE_THRESHOLD = 67;
+
+app.post('/api/candidates', async (req, res) => {
+  const { name, email, phone, resumeText, roleId } = req.body || {};
+  if (!resumeText || !roleId) {
+    return res.status(400).json({ error: 'resumeText and roleId are required' });
   }
-  const job = getJob(jobId);
-  if (!job) {
-    return res.status(404).json({ error: `No job found with id ${jobId}` });
+  const role = getRole(roleId);
+  if (!role) {
+    return res.status(404).json({ error: `No role found with id ${roleId}` });
   }
 
   // Stage 2 — Screen
@@ -52,13 +45,19 @@ app.post('/api/candidates', (req, res) => {
   let invite = null;
 
   if (validation.valid) {
-    // Stage 4 — Match against job requirements
-    match = matchToJob(profile, job);
+    // Stage 4 — Analyze against the role's baseline requirements
+    match = matchToRole(profile, role);
+  }
+
+  // Stage 5 — Notify the candidate by real email once their score clears the bar
+  let emailResult = null;
+  if (match && match.score > EMAIL_SCORE_THRESHOLD) {
+    emailResult = await sendInterviewNotice({ to: profile.email, candidateName: profile.name, roleTitle: role.title });
   }
 
   const candidate = saveCandidate({
-    jobId: job.id,
-    jobTitle: job.title,
+    roleId: role.id,
+    roleTitle: role.title,
     name: profile.name,
     email: profile.email,
     phone: profile.phone,
@@ -70,15 +69,22 @@ app.post('/api/candidates', (req, res) => {
     issues: validation.issues,
     score: match ? match.score : null,
     status: match ? match.status : 'invalid',
+    mustHaveCoverage: match ? match.mustHaveCoverage : null,
+    niceToHaveCoverage: match ? match.niceToHaveCoverage : null,
+    experienceFit: match ? match.experienceFit : null,
     matchedMustHave: match ? match.matchedMustHave : [],
     missingMustHave: match ? match.missingMustHave : [],
     matchedNiceToHave: match ? match.matchedNiceToHave : [],
+    missingNiceToHave: match ? match.missingNiceToHave : [],
+    analysis: match ? match.analysis : 'Application could not be analyzed until the issues above are resolved.',
     nextAction: match ? match.nextAction : 'Request a complete application',
+    emailSent: emailResult ? emailResult.sent : false,
+    emailNote: emailResult ? (emailResult.reason || null) : null,
   });
 
   if (match && match.status === 'shortlisted') {
     // Path A — draft interview invite for shortlisted candidates
-    const draft = draftInterviewInvite({ name: candidate.name, jobTitle: job.title });
+    const draft = draftInterviewInvite({ name: candidate.name, roleTitle: role.title });
     invite = postInvite(candidate, { draft });
   }
 
@@ -86,7 +92,7 @@ app.post('/api/candidates', (req, res) => {
 });
 
 app.get('/api/candidates', (req, res) => {
-  res.json(listCandidates(req.query.jobId));
+  res.json(listCandidates(req.query.roleId));
 });
 
 app.get('/api/candidates/:id', (req, res) => {
@@ -96,11 +102,11 @@ app.get('/api/candidates/:id', (req, res) => {
 });
 
 app.get('/api/shortlist', (req, res) => {
-  res.json(listCandidates(req.query.jobId).filter(c => c.status === 'shortlisted'));
+  res.json(listCandidates(req.query.roleId).filter(c => c.status === 'shortlisted'));
 });
 
 app.get('/api/invites', (req, res) => {
-  res.json(listInvites(req.query.jobId));
+  res.json(listInvites(req.query.roleId));
 });
 
 const PORT = process.env.PORT || 3001;

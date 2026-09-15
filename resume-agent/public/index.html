@@ -19,13 +19,15 @@
       <div class="logo">R</div>
       <div>
         <h1>Resumalyze</h1>
-        <p class="subtitle">Job posting → screen CV → validate → match → shortlist for interview</p>
+        <p class="subtitle">Pick a role → screen CV → validate → analyze fit → shortlist for interview</p>
       </div>
     </div>
     <button id="theme-toggle" class="icon-btn" title="Toggle theme" type="button">🌙</button>
   </header>
 
   <main>
+    <p id="mailer-banner" class="mailer-banner" hidden></p>
+
     <div class="stats" id="stats">
       <div class="stat-card" data-status="">
         <span class="stat-value" id="stat-total">0</span>
@@ -49,27 +51,11 @@
       </div>
     </div>
 
-    <section class="card" id="job-card">
-      <h2>Stage 1 — Job Requisition</h2>
-      <form id="job-form">
-        <div class="row">
-          <input name="title" placeholder="Job title" required />
-          <input name="minExperienceYears" type="number" min="0" placeholder="Min years experience" />
-        </div>
-        <div class="tag-input" data-field="mustHaveSkills">
-          <div class="tags"></div>
-          <input type="text" placeholder="Must-have skill, press Enter" />
-        </div>
-        <div class="tag-input" data-field="niceToHaveSkills">
-          <div class="tags"></div>
-          <input type="text" placeholder="Nice-to-have skill, press Enter" />
-        </div>
-        <textarea name="description" placeholder="Job description (optional)" rows="2"></textarea>
-        <button type="submit">Create Job</button>
-      </form>
-
-      <div class="job-pills" id="job-pills"></div>
-      <p class="hint" id="job-hint">Create a job above, then submit candidates against it.</p>
+    <section class="card" id="role-card">
+      <h2>Stage 1 — Choose a Role <span class="placeholder-tag">20 IT roles</span></h2>
+      <p class="hint" style="margin:0 0 0.9rem;">Each role carries a fixed baseline of must-have skills, nice-to-have skills, and minimum experience — the agent analyzes every resume against it.</p>
+      <div class="role-grid" id="role-grid"></div>
+      <div class="role-detail" id="role-detail" hidden></div>
     </section>
 
     <section class="card" id="candidate-card">
@@ -89,11 +75,11 @@
           <span class="spinner" hidden></span>
         </button>
       </form>
-      <p class="hint">Mention skills, "X years experience", and a degree (e.g. Bachelor/Master) for a richer screen.</p>
+      <p class="hint">Mention skills, "X years experience", and a degree (e.g. Bachelor/Master) for a richer analysis against the selected role.</p>
     </section>
 
     <section class="card" id="pipeline-card">
-      <h2>Stage 3-4 — Screened &amp; Matched Candidates <span class="placeholder-tag">PLACEHOLDER: ATS</span></h2>
+      <h2>Stage 3-4 — Screened &amp; Analyzed Candidates <span class="placeholder-tag">PLACEHOLDER: ATS</span></h2>
 
       <div class="pipeline-toolbar">
         <div class="tabs" id="status-tabs">
@@ -113,8 +99,8 @@
             <th>Candidate</th>
             <th class="sortable" id="sort-score">Score <span class="sort-arrow"></span></th>
             <th>Status</th>
-            <th>Skills matched</th>
-            <th>Missing</th>
+            <th>Must-have coverage</th>
+            <th>Experience</th>
             <th>Next action</th>
           </tr>
         </thead>

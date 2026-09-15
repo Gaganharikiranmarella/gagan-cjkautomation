@@ -1,13 +1,23 @@
 // Known skill vocabulary the screener looks for inside resume text.
-// Job postings can reference any of these (or arbitrary words) as requirements.
+// Covers the requirements of every role in lib/jobRoles.js plus common adjacent terms.
 const SKILL_VOCAB = [
-  'javascript', 'typescript', 'python', 'java', 'c++', 'c#', 'go', 'rust', 'ruby', 'php',
+  'javascript', 'typescript', 'python', 'java', 'c++', 'c#', 'c', 'go', 'rust', 'ruby', 'php',
   'react', 'vue', 'angular', 'node.js', 'node', 'express', 'next.js', 'django', 'flask',
-  'spring', 'sql', 'postgresql', 'mysql', 'mongodb', 'redis', 'graphql', 'rest api',
-  'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'terraform', 'ci/cd', 'git',
-  'machine learning', 'data science', 'pandas', 'numpy', 'tensorflow', 'pytorch',
-  'html', 'css', 'sass', 'figma', 'agile', 'scrum', 'project management',
+  'spring', 'sql', 'postgresql', 'mysql', 'mongodb', 'redis', 'graphql', 'rest api', 'microservices',
+  'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'terraform', 'ansible', 'ci/cd', 'git', 'linux',
+  'machine learning', 'data science', 'pandas', 'numpy', 'tensorflow', 'pytorch', 'scikit-learn', 'keras',
+  'nlp', 'llm', 'prompt engineering', 'computer vision',
+  'html', 'css', 'sass', 'figma', 'agile', 'scrum', 'project management', 'roadmap', 'stakeholder management',
   'communication', 'leadership', 'sales', 'marketing', 'seo', 'excel',
+  'kotlin', 'android', 'swift', 'ios', 'flutter', 'react native', 'firebase',
+  'monitoring', 'incident response', 'prometheus', 'grafana',
+  'etl', 'spark', 'airflow', 'hadoop', 'kafka', 'tableau', 'power bi', 'data visualization',
+  'selenium', 'cypress', 'jest', 'junit', 'manual testing', 'automation testing', 'jira',
+  'cybersecurity', 'networking', 'tcp/ip', 'dns', 'firewall', 'penetration testing', 'siem', 'iam',
+  'database administration', 'oracle',
+  'ui design', 'ux design', 'wireframing', 'user research', 'prototyping', 'sketch', 'adobe xd',
+  'solidity', 'blockchain', 'ethereum', 'web3', 'smart contracts',
+  'unity', 'unreal engine', 'game design',
 ];
 
 // Stage 2 — Screen Resume (AI)
@@ -21,7 +31,7 @@ function screenResume({ name, email, phone, resumeText }) {
 
   const skills = SKILL_VOCAB.filter(skill => lower.includes(skill));
 
-  const yearsMatch = lower.match(/(\d+)\+?\s*(?:years|yrs)\b/);
+  const yearsMatch = lower.match(/(\d+)\+?\s*(?:years?|yrs?)\b/);
   const experienceYears = yearsMatch ? parseInt(yearsMatch[1], 10) : 0;
 
   const educationLevel =
@@ -43,7 +53,7 @@ function screenResume({ name, email, phone, resumeText }) {
 }
 
 // Stage 3 — Validate Candidate (rules)
-// Checks the screened profile is complete and well-formed before it's allowed into matching.
+// Checks the screened profile is complete and well-formed before it's allowed into role matching.
 function validateCandidate(profile) {
   const issues = [];
 
@@ -60,30 +70,28 @@ function validateCandidate(profile) {
   return { valid: issues.length === 0, issues };
 }
 
-// Stage 4 — Match Candidate to Job (AI)
-// Heuristic stand-in for an LLM/embedding match: scores the candidate against job requirements.
-function matchToJob(profile, job) {
-  const mustHave = (job.mustHaveSkills || []).map(s => s.toLowerCase());
-  const niceToHave = (job.niceToHaveSkills || []).map(s => s.toLowerCase());
+// Stage 4 — Analyze Candidate Against Role Baseline (AI)
+// Unlike a flat lead score, this scores must-have/nice-to-have coverage and experience fit
+// separately, then blends them into an overall score with a short plain-English analysis.
+function matchToRole(profile, role) {
+  const mustHave = (role.mustHaveSkills || []).map(s => s.toLowerCase());
+  const niceToHave = (role.niceToHaveSkills || []).map(s => s.toLowerCase());
   const candidateSkills = profile.skills.map(s => s.toLowerCase());
 
   const matchedMustHave = mustHave.filter(s => candidateSkills.includes(s));
   const missingMustHave = mustHave.filter(s => !candidateSkills.includes(s));
   const matchedNiceToHave = niceToHave.filter(s => candidateSkills.includes(s));
+  const missingNiceToHave = niceToHave.filter(s => !candidateSkills.includes(s));
 
-  let score = 30;
-  score += mustHave.length ? (matchedMustHave.length / mustHave.length) * 45 : 20;
-  score += niceToHave.length ? (matchedNiceToHave.length / niceToHave.length) * 15 : 0;
-  if (profile.experienceYears >= (job.minExperienceYears || 0)) {
-    score += 10;
-  } else if (job.minExperienceYears) {
-    score -= 10 * Math.min(1, (job.minExperienceYears - profile.experienceYears) / job.minExperienceYears);
-  }
+  const mustHaveCoverage = mustHave.length ? Math.round((matchedMustHave.length / mustHave.length) * 100) : 100;
+  const niceToHaveCoverage = niceToHave.length ? Math.round((matchedNiceToHave.length / niceToHave.length) * 100) : 0;
+  const experienceFit = profile.experienceYears >= (role.minExperienceYears || 0) ? 'meets' : 'below';
 
-  score = Math.max(0, Math.min(100, Math.round(score)));
+  let score = Math.round(mustHaveCoverage * 0.6 + niceToHaveCoverage * 0.25 + (experienceFit === 'meets' ? 15 : 0));
+  score = Math.max(0, Math.min(100, score));
 
   const status =
-    score >= 70 && missingMustHave.length === 0 ? 'shortlisted' :
+    mustHaveCoverage === 100 && experienceFit === 'meets' && score >= 70 ? 'shortlisted' :
     score >= 45 ? 'consider' : 'rejected';
 
   const nextAction =
@@ -91,24 +99,38 @@ function matchToJob(profile, job) {
     status === 'consider' ? 'Manual recruiter review' :
     'Send rejection notice';
 
+  const analysis = [
+    `Covers ${matchedMustHave.length}/${mustHave.length} must-have skill${mustHave.length === 1 ? '' : 's'} for ${role.title}${matchedMustHave.length ? ` (${matchedMustHave.join(', ')})` : ''}.`,
+    missingMustHave.length ? `Missing: ${missingMustHave.join(', ')}.` : null,
+    matchedNiceToHave.length ? `Bonus skills: ${matchedNiceToHave.join(', ')}.` : null,
+    experienceFit === 'meets'
+      ? `Experience (${profile.experienceYears}y) meets the ${role.minExperienceYears}y minimum.`
+      : `Experience (${profile.experienceYears}y) is below the ${role.minExperienceYears}y minimum.`,
+  ].filter(Boolean).join(' ');
+
   return {
     score,
     status,
+    mustHaveCoverage,
+    niceToHaveCoverage,
+    experienceFit,
     matchedMustHave,
     missingMustHave,
     matchedNiceToHave,
+    missingNiceToHave,
     nextAction,
+    analysis,
   };
 }
 
 // Path A, step 1 — Draft Interview Invite (AI)
-function draftInterviewInvite({ name, jobTitle }) {
+function draftInterviewInvite({ name, roleTitle }) {
   const firstName = (name || '').split(' ')[0] || 'there';
-  const subject = `Interview invitation — ${jobTitle}`;
+  const subject = `Interview invitation — ${roleTitle}`;
   const body =
 `Hi ${firstName},
 
-Thanks for applying for the ${jobTitle} role! Your background looks like a strong match and we'd like to move forward with an interview.
+Thanks for applying for the ${roleTitle} role! Your background looks like a strong match and we'd like to move forward with an interview.
 
 Could you share a few times that work for you over the next week?
 
@@ -117,4 +139,4 @@ Recruiting Team`;
   return { subject, body };
 }
 
-module.exports = { screenResume, validateCandidate, matchToJob, draftInterviewInvite };
+module.exports = { SKILL_VOCAB, screenResume, validateCandidate, matchToRole, draftInterviewInvite };

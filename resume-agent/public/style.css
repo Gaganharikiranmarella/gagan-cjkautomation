@@ -327,66 +327,71 @@ button:disabled { opacity: 0.6; cursor: default; transform: none; }
 .stat-card.status-rejected .stat-value { color: var(--rejected); }
 .stat-card.status-invalid .stat-value { color: var(--invalid); }
 
-/* ---------- Tag input (job skills) ---------- */
-.tag-input {
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 0.5rem 0.6rem;
-  background: rgba(255, 255, 255, 0.04);
+/* ---------- Role grid (fixed role catalog) ---------- */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.5rem;
 }
-:root[data-theme="light"] .tag-input { background: rgba(255,255,255,0.6); }
-.tag-input .tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.35rem; }
-.tag-input .tags:empty { display: none; }
-.tag-input input {
-  border: none;
-  padding: 0.3rem 0.15rem;
-  background: transparent;
-}
-.tag-input input:focus { box-shadow: none; }
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: linear-gradient(90deg, var(--accent-soft), rgba(34,211,238,0.16));
-  color: var(--accent2);
-  border: 1px solid rgba(47, 95, 219, 0.35);
-  border-radius: 999px;
-  padding: 0.2rem 0.7rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-.chip button {
-  background: none;
-  border: none;
-  color: inherit;
-  padding: 0;
-  font-size: 0.85rem;
-  cursor: pointer;
-  line-height: 1;
-  box-shadow: none;
-}
-
-/* ---------- Job pills ---------- */
-.job-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
-.job-pill {
+.role-pill {
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.04);
   color: var(--text);
-  border-radius: 999px;
-  padding: 0.4rem 1rem;
-  font-size: 0.82rem;
+  border-radius: 14px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  text-align: left;
   cursor: pointer;
   box-shadow: none;
   transition: all 0.15s ease;
 }
-.job-pill:hover { border-color: var(--accent); transform: translateY(-1px); }
-.job-pill.active {
+.role-pill:hover { border-color: var(--accent); transform: translateY(-1px); }
+.role-pill.active {
   background: linear-gradient(90deg, var(--accent), var(--accent2));
   border-color: transparent;
   color: #04102a;
   box-shadow: 0 8px 22px -8px rgba(47,95,219,0.6);
 }
+
+.role-detail {
+  margin-top: 1.1rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  display: grid;
+  gap: 0.45rem;
+}
+.role-detail-row { font-size: 0.82rem; }
+.role-detail-label {
+  display: inline-block;
+  min-width: 108px;
+  color: var(--accent2);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Coverage bar ---------- */
+.coverage { display: flex; align-items: center; gap: 0.5rem; min-width: 110px; }
+.coverage-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.coverage-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.coverage-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.fit-meets { color: var(--shortlisted); font-weight: 700; }
+.fit-below { color: var(--rejected); font-weight: 700; }
 
 /* ---------- Dropzone ---------- */
 .dropzone { position: relative; border-radius: 14px; }
@@ -480,6 +485,25 @@ td:last-child { border-right: 1px solid var(--border); border-radius: 0 14px 14p
   background: rgba(255,255,255,0.04);
   white-space: pre-wrap;
   font-size: 0.78rem;
+}
+
+.email-status {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+}
+.email-status.sent { background: var(--shortlisted-bg); color: var(--shortlisted); }
+.email-status.pending { background: var(--consider-bg); color: var(--consider); }
+
+.mailer-banner {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: var(--consider-bg);
+  color: var(--consider);
+  font-size: 0.8rem;
 }
 
 .skill-tag {
