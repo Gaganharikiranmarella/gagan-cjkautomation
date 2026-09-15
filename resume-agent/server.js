@@ -1,6 +1,6 @@
-require('dotenv').config();
-const express = require('express');
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+const express = require('express');
 const { screenResume, validateCandidate, matchToRole, draftInterviewInvite } = require('./lib/pipeline');
 const { listRoles, getRole } = require('./lib/jobRoles');
 const { sendInterviewNotice, isConfigured, SENDER } = require('./lib/mailer');
