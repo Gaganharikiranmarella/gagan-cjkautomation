@@ -9,7 +9,12 @@ const fs = require('fs');
 const path = require('path');
 const { DEFAULT_STATE } = require('./schema');
 
-const DATA_DIR = path.join(__dirname, 'data');
+// On Vercel the deployment bundle is read-only except for /tmp, and /tmp is
+// wiped between cold starts / separate instances, so data won't persist
+// reliably in production there — fine for a demo, not for real usage.
+const DATA_DIR = process.env.VERCEL
+  ? path.join('/tmp', 'lead-gen-agent-data')
+  : path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'store.json');
 
 function ensureStore() {

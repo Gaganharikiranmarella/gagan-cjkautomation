@@ -110,4 +110,8 @@ app.get('/api/invites', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Resumalyze (Recruitment AI Agent) running on http://localhost:${PORT}`));
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Resumalyze (Recruitment AI Agent) running on http://localhost:${PORT}`));
+}
+
+module.exports = app;

@@ -4,3 +4,4 @@ database/data/store.json
 database/data/*.bak
 npm-debug.log*
 .DS_Store
+.vercel

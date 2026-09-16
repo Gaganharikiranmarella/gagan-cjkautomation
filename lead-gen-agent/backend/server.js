@@ -21,6 +21,10 @@ app.get('*', (req, res, next) => {
 app.use('/api', notFoundHandler);
 app.use(errorHandler);
 
-app.listen(env.port, () => {
-  logger.info(`Lead Gen Agent running at http://localhost:${env.port}`);
-});
+if (require.main === module) {
+  app.listen(env.port, () => {
+    logger.info(`Lead Gen Agent running at http://localhost:${env.port}`);
+  });
+}
+
+module.exports = app;
