@@ -28,14 +28,19 @@ async def unhandled_exception_handler(request, exc):  # noqa: ARG001
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
-app.include_router(auth.router, prefix="/api")
-app.include_router(waba.router, prefix="/api")
-app.include_router(webhooks.router, prefix="/api")
-app.include_router(contacts.router, prefix="/api")
-app.include_router(leads.router, prefix="/api")
-app.include_router(csv_imports.router, prefix="/api")
-app.include_router(campaigns.router, prefix="/api")
-app.include_router(notifications.router, prefix="/api")
-app.include_router(audit.router, prefix="/api")
-app.include_router(support.router, prefix="/api")
-app.include_router(cron.router, prefix="/api")
+# Vercel's multi-service routing (see ../vercel.json "rewrites") sends every
+# request under /api/backend/* to this service, path unchanged — so every
+# route here is mounted at that same prefix.
+API_PREFIX = "/api/backend"
+
+app.include_router(auth.router, prefix=API_PREFIX)
+app.include_router(waba.router, prefix=API_PREFIX)
+app.include_router(webhooks.router, prefix=API_PREFIX)
+app.include_router(contacts.router, prefix=API_PREFIX)
+app.include_router(leads.router, prefix=API_PREFIX)
+app.include_router(csv_imports.router, prefix=API_PREFIX)
+app.include_router(campaigns.router, prefix=API_PREFIX)
+app.include_router(notifications.router, prefix=API_PREFIX)
+app.include_router(audit.router, prefix=API_PREFIX)
+app.include_router(support.router, prefix=API_PREFIX)
+app.include_router(cron.router, prefix=API_PREFIX)

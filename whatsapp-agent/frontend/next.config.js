@@ -12,10 +12,12 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
-    // Local dev convenience: `next dev` proxies /api/* to a locally running
+    // Local dev convenience: `next dev` proxies /api/* (the backend's routes
+    // all live under /api/backend/*, see apiClient.ts) to a locally running
     // `uvicorn app.main:app --port 8000` so the frontend never needs to know
-    // the backend's origin. On Vercel, vercel.json routes /api/* to the
-    // Python function directly and this rewrite is never reached.
+    // the backend's origin. On Vercel, vercel.json's "services" rewrites
+    // route /api/backend/* to the backend service directly and this rewrite
+    // is never reached.
     if (process.env.NODE_ENV !== "production") {
       return [{ source: "/api/:path*", destination: "http://127.0.0.1:8000/api/:path*" }];
     }

@@ -77,7 +77,7 @@ def connect_manual(body: ManualConnectRequest, user: CurrentUser = Depends(get_c
     return {
         **row,
         "id": str(row["id"]),
-        "webhook_url_hint": "/api/webhooks/whatsapp",
+        "webhook_url_hint": "/api/backend/webhooks/whatsapp",
         "verify_token": verify_token,
         "note": "Add this callback URL + verify token under Meta App > WhatsApp > Configuration.",
     }

@@ -1,7 +1,7 @@
 """Vercel's Python runtime auto-detects an ASGI app named `app` in any file
 under /api and serves it as a serverless function — no adapter needed for
-FastAPI. This file is the single entrypoint; see ../vercel.json for how
-/api/* requests get routed here.
+FastAPI. This file is the single entrypoint for the "backend" service; see
+../../vercel.json for how /api/backend/* requests get routed here.
 """
 
 import sys

@@ -41,11 +41,11 @@ drops that** in favor of an architecture that deploys to Vercel with zero extra 
   swap in [Upstash QStash](https://upstash.com/docs/qstash) later if you need the queue back
   without standing up your own Redis.
 - **Scheduled follow-ups & campaigns** use `scheduled_jobs`/`follow_up_rules` tables plus a
-  single protected endpoint, `GET/POST /api/cron/dispatch`, invoked by Vercel Cron
+  single protected endpoint, `GET/POST /api/backend/cron/dispatch`, invoked by Vercel Cron
   (see `vercel.json`). **Vercel's Hobby plan only runs cron jobs once a day** — for near-real-time
   follow-ups either upgrade to Pro, or point a free external scheduler (e.g.
   [cron-job.org](https://cron-job.org) or a GitHub Actions scheduled workflow) at
-  `POST https://yourdomain.com/api/cron/dispatch` with header
+  `POST https://yourdomain.com/api/backend/cron/dispatch` with header
   `Authorization: Bearer <CRON_SECRET>` every few minutes.
 - **Email** uses Resend instead of the doc's Amazon SES recommendation — one API key, no AWS
   account, much less deploy friction.
@@ -97,23 +97,25 @@ developer a free test number + temporary access token instantly under
 4. **Import the project into Vercel** ([vercel.com/new](https://vercel.com/new)) from your repo.
    This app lives in the `whatsapp-agent/` subfolder of a larger repo — in the import screen's
    **Root Directory** setting, choose `whatsapp-agent` (not the repo root, and not `frontend/`).
-   Vercel then reads `whatsapp-agent/vercel.json` and the `frontend/`/`backend/` paths inside it
-   resolve correctly.
+   Vercel then reads `whatsapp-agent/vercel.json`, which declares two **services** in one
+   project — `frontend` (Next.js, serves everything) and `backend` (FastAPI, serves everything
+   under `/api/backend/*`) — so both deploy together from this one import with no extra config.
 5. **Add environment variables** (Project Settings → Environment Variables) — copy every key from
    `.env.example`, with real values. At minimum: `DATABASE_URL`, `JWT_SECRET` (generate with
    `openssl rand -hex 32`), `TOKEN_ENCRYPTION_KEY` (generate with
    `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`),
-   `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `CRON_SECRET`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`,
-   `SUPPORT_EMAIL` (defaults to ghk7125@gmail.com), `FRONTEND_URL` (your production URL, e.g.
-   `https://your-app.vercel.app`).
-6. **Deploy.** Vercel builds the Next.js frontend and the FastAPI backend (as a single Python
-   serverless function) from the one repo in one click.
+   `CRON_SECRET`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`, `SUPPORT_EMAIL` (defaults to
+   ghk7125@gmail.com), `FRONTEND_URL` (your production URL, e.g. `https://your-app.vercel.app`).
+   Add `ANTHROPIC_API_KEY` and `RESEND_API_KEY` too once you have them — both are optional at
+   first launch and degrade gracefully when unset (see below).
+6. **Deploy.** Vercel builds the Next.js frontend and the FastAPI backend as two services in the
+   one project, from the one repo, in one click.
 7. **Point Meta's webhook at your live URL.** In Meta App Dashboard → WhatsApp → Configuration,
-   set the callback URL to `https://your-app.vercel.app/api/webhooks/whatsapp` and the verify
-   token to whichever token your tenant's **Connect WhatsApp** step gave you (shown on screen
-   after connecting, and re-visible in the `waba_accounts` table).
+   set the callback URL to `https://your-app.vercel.app/api/backend/webhooks/whatsapp` and the
+   verify token to whichever token your tenant's **Connect WhatsApp** step gave you (shown on
+   screen after connecting, and re-visible in the `waba_accounts` table).
 8. **(Optional, recommended for near-real-time follow-ups on Hobby plan)** point an external
-   scheduler at `/api/cron/dispatch` as described above.
+   scheduler at `/api/backend/cron/dispatch` as described above.
 
 That's it — no servers to provision, no Docker, no Redis. Every subsequent `git push` to your
 main branch redeploys automatically.

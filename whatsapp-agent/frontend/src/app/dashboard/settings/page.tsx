@@ -58,7 +58,7 @@ function ConnectWhatsApp() {
     try {
       const res = await api.post<{ verify_token: string }>("/waba-accounts/connect", form);
       setSuccess(
-        `Connected! In your Meta App's WhatsApp > Configuration, set the callback URL to {your-domain}/api/webhooks/whatsapp and the verify token to: ${res.verify_token}`
+        `Connected! In your Meta App's WhatsApp > Configuration, set the callback URL to {your-domain}/api/backend/webhooks/whatsapp and the verify token to: ${res.verify_token}`
       );
       setForm({ phone_number_id: "", waba_id: "", access_token: "", app_secret: "" });
       load();

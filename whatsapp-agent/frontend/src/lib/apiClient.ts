@@ -35,7 +35,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const res = await fetch(`/api${path}`, { ...options, headers });
+  // Vercel's multi-service routing (see ../../vercel.json) sends /api/backend/*
+  // to the FastAPI service; the backend's own routes are mounted at that same
+  // prefix (see backend/app/main.py's API_PREFIX).
+  const res = await fetch(`/api/backend${path}`, { ...options, headers });
 
   if (res.status === 401) {
     setToken(null);
