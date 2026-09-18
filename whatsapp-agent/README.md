@@ -95,8 +95,10 @@ developer a free test number + temporary access token instantly under
    - A Meta App with the WhatsApp product added → [developers.facebook.com](https://developers.facebook.com)
      (only needed for tenants to connect a number — the app itself deploys fine without this)
 4. **Import the project into Vercel** ([vercel.com/new](https://vercel.com/new)) from your repo.
-   Vercel reads `vercel.json` at the repo root automatically — leave the Root Directory as the
-   repo root, **do not** set it to `frontend/`.
+   This app lives in the `whatsapp-agent/` subfolder of a larger repo — in the import screen's
+   **Root Directory** setting, choose `whatsapp-agent` (not the repo root, and not `frontend/`).
+   Vercel then reads `whatsapp-agent/vercel.json` and the `frontend/`/`backend/` paths inside it
+   resolve correctly.
 5. **Add environment variables** (Project Settings → Environment Variables) — copy every key from
    `.env.example`, with real values. At minimum: `DATABASE_URL`, `JWT_SECRET` (generate with
    `openssl rand -hex 32`), `TOKEN_ENCRYPTION_KEY` (generate with
