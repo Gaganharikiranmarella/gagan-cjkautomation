@@ -12,6 +12,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["resume-agent/server.js"],
       "port": 3001
+    },
+    {
+      "name": "whatsapp-agent-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "whatsapp-agent/frontend", "run", "dev", "--", "-p", "3010"],
+      "port": 3010
     }
   ]
 }

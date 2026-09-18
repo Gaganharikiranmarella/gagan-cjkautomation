@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { HowItWorks } from "@/components/HowItWorks";
 
 const FEATURES = [
   {
@@ -34,6 +35,9 @@ export default function LandingPage() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <Logo light withText size={34} />
         <nav className="flex items-center gap-3">
+          <Link href="#working" className="hidden text-sm text-ink-200 hover:text-white sm:inline">
+            How it works
+          </Link>
           <Link href="/support" className="text-sm text-ink-200 hover:text-white">
             Support
           </Link>
@@ -64,6 +68,8 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
+
+      <HowItWorks />
 
       <section className="mx-auto max-w-6xl px-6 pb-24">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
