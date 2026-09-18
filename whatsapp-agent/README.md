@@ -42,11 +42,12 @@ drops that** in favor of an architecture that deploys to Vercel with zero extra 
   without standing up your own Redis.
 - **Scheduled follow-ups & campaigns** use `scheduled_jobs`/`follow_up_rules` tables plus a
   single protected endpoint, `GET/POST /api/backend/cron/dispatch`, invoked by Vercel Cron
-  (see `vercel.json`). **Vercel's Hobby plan only runs cron jobs once a day** — for near-real-time
-  follow-ups either upgrade to Pro, or point a free external scheduler (e.g.
-  [cron-job.org](https://cron-job.org) or a GitHub Actions scheduled workflow) at
-  `POST https://yourdomain.com/api/backend/cron/dispatch` with header
-  `Authorization: Bearer <CRON_SECRET>` every few minutes.
+  (see `vercel.json`'s `"crons"` entry, set to run once daily at 03:00 UTC — **Vercel's Hobby
+  plan only allows daily cron jobs**, so this is the free-tier-friendly default). For
+  near-real-time follow-ups either upgrade to Pro and tighten the schedule, or point a free
+  external scheduler (e.g. [cron-job.org](https://cron-job.org) or a GitHub Actions scheduled
+  workflow) at `POST https://yourdomain.com/api/backend/cron/dispatch` with header
+  `Authorization: Bearer <CRON_SECRET>` every few minutes instead.
 - **Email** uses Resend instead of the doc's Amazon SES recommendation — one API key, no AWS
   account, much less deploy friction.
 
