@@ -1,0 +1,68 @@
+# ===== Secrets & environment =====
+.env
+.env.*
+!.env.example
+!frontend/.env.local.example
+backend/.env
+frontend/.env*.local
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+
+# ===== Node / Next.js (frontend) =====
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.vercel/
+frontend/*.tsbuildinfo
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.turbo/
+node_modules/
+.next/
+.vercel/
+
+# ===== Python (backend) =====
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.venv/
+backend/venv/
+backend/.pytest_cache/
+backend/*.egg-info/
+backend/.mypy_cache/
+backend/.ruff_cache/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ===== Uploads / generated data (may contain PII) =====
+backend/uploads/
+backend/tmp/
+**/uploads/
+*.csv
+
+# ===== Database =====
+*.sqlite3
+*.db
+database/*.dump
+database/backups/
+
+# ===== OS / editor =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# ===== Logs =====
+*.log
+logs/
+
+# ==== Miscellaneous =====
+schema/
