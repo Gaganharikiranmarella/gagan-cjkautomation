@@ -1,4 +1,4 @@
-const pdfParse = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 const mammoth = require('mammoth');
 
 // Turns an uploaded resume buffer into plain text, regardless of format.
@@ -6,7 +6,8 @@ async function extractResumeText(file) {
   const { mimetype, buffer } = file;
 
   if (mimetype === 'application/pdf') {
-    const result = await pdfParse(buffer);
+    const parser = new PDFParse({ data: buffer });
+    const result = await parser.getText();
     return result.text;
   }
 
