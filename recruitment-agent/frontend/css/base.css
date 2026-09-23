@@ -1,0 +1,174 @@
+/* ============================================================
+   Resumalyze v2.0 - design tokens + reset + typography
+   Theme: turquoise / black / white, glassmorphic
+   ============================================================ */
+
+:root {
+  --bg-void: #05090a;
+  --bg-deep: #0a1113;
+  --bg-panel: #0e1719;
+
+  --teal-50: #ecfffc;
+  --teal-300: #5eead4;
+  --teal-400: #2dd4bf;
+  --teal-500: #14b8a6;
+  --teal-600: #0d9488;
+  --teal-glow: rgba(45, 212, 191, 0.35);
+
+  --white: #f5fbfa;
+  --white-dim: rgba(245, 251, 250, 0.72);
+  --white-faint: rgba(245, 251, 250, 0.46);
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-bg-strong: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-hover: rgba(94, 234, 212, 0.45);
+
+  --danger: #fb7185;
+  --danger-glow: rgba(251, 113, 133, 0.28);
+  --warn: #fbbf24;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 0 1px var(--glass-border), 0 12px 40px -8px var(--teal-glow);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-display: 'Sora', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--white);
+  background: radial-gradient(1200px 800px at 15% -10%, rgba(45, 212, 191, 0.16), transparent 60%),
+    radial-gradient(1000px 700px at 100% 0%, rgba(45, 212, 191, 0.08), transparent 55%),
+    var(--bg-void);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0 0 0.4em;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0 0 1em;
+  color: var(--white-dim);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--teal-300);
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--teal-500);
+  color: var(--bg-void);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(94, 234, 212, 0.25);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(94, 234, 212, 0.45);
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.text-dim {
+  color: var(--white-dim);
+}
+.text-faint {
+  color: var(--white-faint);
+}
+.text-teal {
+  color: var(--teal-300);
+}
+
+.gradient-text {
+  background: linear-gradient(120deg, var(--teal-300), var(--teal-500) 60%, var(--white));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--teal-glow);
+  }
+  50% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+.fade-in {
+  animation: fadeSlideUp 0.5s var(--ease) both;
+}

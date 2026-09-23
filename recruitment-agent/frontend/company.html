@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Company Dashboard — Resumalyze v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/base.css" />
+<link rel="stylesheet" href="/css/components.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="brand" style="text-decoration:none;">
+    <span class="brand-mark">R</span>
+    Resumalyze <span class="brand-version">v2.0</span>
+  </a>
+  <div class="nav-right">
+    <span class="nav-user">Hi, <strong id="userName">—</strong></span>
+    <button class="btn btn-ghost btn-sm" id="logoutBtn">Log out</button>
+  </div>
+</nav>
+
+<main class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h1>Company Dashboard</h1>
+      <p class="text-faint" style="margin:0;">Post roles and watch the shortlist build itself.</p>
+    </div>
+    <button class="btn btn-primary" id="newJobBtn">+ Post a Job</button>
+  </div>
+
+  <div class="stat-row">
+    <div class="glass stat-card">
+      <div class="stat-value" id="statJobs">0</div>
+      <div class="stat-label">Job postings</div>
+    </div>
+    <div class="glass stat-card">
+      <div class="stat-value" id="statApplicants">0</div>
+      <div class="stat-label">Total applicants</div>
+    </div>
+    <div class="glass stat-card">
+      <div class="stat-value" id="statShortlisted">0</div>
+      <div class="stat-label">Total shortlisted</div>
+    </div>
+  </div>
+
+  <div class="list" id="jobsList"></div>
+  <div class="empty-state hidden" id="jobsEmptyState">
+    <div class="icon">🗂️</div>
+    <p>No job postings yet — click "Post a Job" to create your first one.</p>
+  </div>
+</main>
+
+<!-- Job create/edit modal -->
+<div class="modal-overlay hidden" id="jobFormOverlay">
+  <div class="glass modal modal-lg" id="jobFormModal">
+    <button class="modal-close" id="jobFormClose">✕</button>
+    <h2 id="jobFormTitle">Post a New Job</h2>
+    <form id="jobForm" style="margin-top: 16px;">
+      <div class="field">
+        <label>Job title *</label>
+        <input type="text" name="title" placeholder="Frontend Engineer" required />
+      </div>
+      <div class="field">
+        <label>Description *</label>
+        <textarea name="description" placeholder="What the role involves day to day..." required></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Location</label>
+          <input type="text" name="location" placeholder="Remote" />
+        </div>
+        <div class="field">
+          <label>Job type</label>
+          <select name="jobType">
+            <option value="full-time">Full-time</option>
+            <option value="part-time">Part-time</option>
+            <option value="internship">Internship</option>
+            <option value="contract">Contract</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Minimum experience (years)</label>
+          <input type="number" name="minExperience" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Openings</label>
+          <input type="number" name="openings" min="1" placeholder="1" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Required skills <span class="field-hint">(comma-separated — these carry the most weight in scoring)</span></label>
+        <input type="text" name="skillsRequired" placeholder="React, Node.js, MongoDB" />
+      </div>
+      <div class="field">
+        <label>Minimum requirements <span class="field-hint">(one per line)</span></label>
+        <textarea name="minimumRequirements" placeholder="Bachelor's degree in CS or related field&#10;2+ years building production web apps"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Pay min</label>
+          <input type="number" name="payMin" min="0" placeholder="e.g. 600000" />
+        </div>
+        <div class="field">
+          <label>Pay max</label>
+          <input type="number" name="payMax" min="0" placeholder="e.g. 900000" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Currency</label>
+          <select name="payCurrency">
+            <option value="INR">INR</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Application deadline</label>
+          <input type="date" name="deadline" />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="jobFormSubmit">Publish Job</button>
+    </form>
+  </div>
+</div>
+
+<!-- Applicants modal -->
+<div class="modal-overlay hidden" id="applicantsOverlay">
+  <div class="glass modal modal-lg" id="applicantsModal">
+    <button class="modal-close" id="applicantsClose">✕</button>
+    <div id="applicantsContent"><div class="spinner" style="margin: 40px auto;"></div></div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/toast.js"></script>
+<script src="/js/session.js"></script>
+<script src="/js/company-dashboard.js"></script>
+</body>
+</html>

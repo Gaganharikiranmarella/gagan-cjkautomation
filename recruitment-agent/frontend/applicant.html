@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Applicant Dashboard — Resumalyze v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/base.css" />
+<link rel="stylesheet" href="/css/components.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="brand" style="text-decoration:none;">
+    <span class="brand-mark">R</span>
+    Resumalyze <span class="brand-version">v2.0</span>
+  </a>
+  <div class="nav-right">
+    <span class="nav-user">Hi, <strong id="userName">—</strong></span>
+    <button class="btn btn-ghost btn-sm" id="logoutBtn">Log out</button>
+  </div>
+</nav>
+
+<main class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h1>Applicant Dashboard</h1>
+      <p class="text-faint" style="margin:0;">Browse open roles and track your applications.</p>
+    </div>
+    <div class="tabbar">
+      <button class="tab-btn active" data-tab="browse">Browse Jobs</button>
+      <button class="tab-btn" data-tab="applications">My Applications</button>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="glass stat-card">
+      <div class="stat-value" id="statApplied">0</div>
+      <div class="stat-label">Applications sent</div>
+    </div>
+    <div class="glass stat-card">
+      <div class="stat-value" id="statShortlisted">0</div>
+      <div class="stat-label">Shortlisted</div>
+    </div>
+    <div class="glass stat-card">
+      <div class="stat-value" id="statAvgScore">—</div>
+      <div class="stat-label">Average match score</div>
+    </div>
+  </div>
+
+  <!-- Browse tab -->
+  <section id="panelBrowse">
+    <div class="toolbar">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by title or skill..." />
+      <select id="jobTypeFilter">
+        <option value="">All job types</option>
+        <option value="full-time">Full-time</option>
+        <option value="part-time">Part-time</option>
+        <option value="internship">Internship</option>
+        <option value="contract">Contract</option>
+      </select>
+      <input type="text" id="locationFilter" placeholder="Location" style="width: 160px;" />
+    </div>
+    <div class="job-grid" id="jobGrid"></div>
+    <div class="empty-state hidden" id="jobEmptyState">
+      <div class="icon">🗂️</div>
+      <p>No open roles match your filters right now.</p>
+    </div>
+  </section>
+
+  <!-- Applications tab -->
+  <section id="panelApplications" class="hidden">
+    <div class="list" id="applicationsList"></div>
+    <div class="empty-state hidden" id="applicationsEmptyState">
+      <div class="icon">📄</div>
+      <p>You haven't applied to anything yet — browse open roles to get started.</p>
+    </div>
+  </section>
+</main>
+
+<!-- Job detail / apply modal -->
+<div class="modal-overlay hidden" id="jobModalOverlay">
+  <div class="glass modal modal-lg" id="jobModal">
+    <button class="modal-close" id="jobModalClose">✕</button>
+    <div id="jobModalContent"><div class="spinner" style="margin: 40px auto;"></div></div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/toast.js"></script>
+<script src="/js/session.js"></script>
+<script src="/js/applicant-dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Resumalyze v2.0 — AI Recruitment Platform</title>
+<meta name="description" content="Resumalyze v2.0 - AI-assisted ATS resume screening and hiring dashboard." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/base.css" />
+<link rel="stylesheet" href="/css/components.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="brand">
+    <span class="brand-mark">R</span>
+    Resumalyze <span class="brand-version">v2.0</span>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-ghost btn-sm" data-open-auth="applicant" data-mode="login">Applicant Sign In</button>
+    <button class="btn btn-primary btn-sm" data-open-auth="company" data-mode="login">Company Sign In</button>
+  </div>
+</nav>
+
+<header class="hero fade-in">
+  <div class="hero-eyebrow">✦ Keyword-driven ATS scoring, instant shortlisting</div>
+  <h1>Hire smarter with <span class="gradient-text">Resumalyze</span></h1>
+  <p class="lead">
+    One platform for both sides of hiring. Applicants apply and get scored
+    against the role instantly. Companies post roles and watch the shortlist
+    build itself — no manual screening.
+  </p>
+</header>
+
+<section class="role-cards">
+  <div class="glass role-card fade-in" data-open-auth="applicant" data-mode="register">
+    <div class="role-icon">🎓</div>
+    <h3>I'm an Applicant</h3>
+    <p>Browse open roles, upload your resume, and see your ATS match score the moment you apply.</p>
+    <div class="role-cta">
+      <button class="btn btn-primary btn-sm" data-open-auth="applicant" data-mode="register">Get Started</button>
+      <button class="btn btn-ghost btn-sm" data-open-auth="applicant" data-mode="login">Sign In</button>
+    </div>
+  </div>
+
+  <div class="glass role-card fade-in" data-open-auth="company" data-mode="register">
+    <div class="role-icon">🏢</div>
+    <h3>I'm Hiring</h3>
+    <p>Post a role with the skills and requirements that matter, and let auto-scoring shortlist candidates for you.</p>
+    <div class="role-cta">
+      <button class="btn btn-primary btn-sm" data-open-auth="company" data-mode="register">Post a Job</button>
+      <button class="btn btn-ghost btn-sm" data-open-auth="company" data-mode="login">Sign In</button>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="glass feature fade-in">
+    <div class="feature-num">01</div>
+    <h4>Post &amp; edit roles</h4>
+    <p>Companies define title, description, minimum requirements, skills and pay — editable anytime, live on the applicant side instantly.</p>
+  </div>
+  <div class="glass feature fade-in">
+    <div class="feature-num">02</div>
+    <h4>Instant ATS scoring</h4>
+    <p>Every resume is scanned for the role's keywords and skills the moment it's uploaded — no waiting, no manual review queue.</p>
+  </div>
+  <div class="glass feature fade-in">
+    <div class="feature-num">03</div>
+    <h4>Auto-shortlisting</h4>
+    <p>Score 65% or higher and you're automatically shortlisted — visible on both dashboards in real time.</p>
+  </div>
+</section>
+
+<footer class="landing-footer">
+  Resumalyze v2.0 — built for fast, transparent hiring.
+</footer>
+
+<!-- Auth modal -->
+<div class="modal-overlay hidden" id="authOverlay">
+  <div class="glass modal" id="authModal">
+    <button class="modal-close" id="authClose">✕</button>
+    <div class="role-toggle">
+      <button class="tab-btn active" id="tabApplicant" type="button">Applicant</button>
+      <button class="tab-btn" id="tabCompany" type="button">Company</button>
+    </div>
+    <h2 id="authTitle">Welcome back</h2>
+    <p id="authSubtitle" class="text-faint">Sign in to your applicant account</p>
+
+    <div class="role-toggle" style="margin-top: 6px;">
+      <button class="tab-btn active" id="modeLogin" type="button">Sign In</button>
+      <button class="tab-btn" id="modeRegister" type="button">Create Account</button>
+    </div>
+
+    <form id="authForm" style="margin-top: 18px;">
+      <!-- Applicant-only fields -->
+      <div class="field register-only applicant-only">
+        <label>Full name</label>
+        <input type="text" name="name" placeholder="Jordan Lee" />
+      </div>
+      <!-- Company-only fields -->
+      <div class="field register-only company-only">
+        <label>Company name</label>
+        <input type="text" name="companyName" placeholder="Acme Inc." />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@example.com" required />
+      </div>
+
+      <div class="field register-only applicant-only">
+        <label>Phone <span class="field-hint">(optional)</span></label>
+        <input type="text" name="phone" placeholder="+1 555 000 0000" />
+      </div>
+
+      <div class="field register-only company-only">
+        <label>Industry <span class="field-hint">(optional)</span></label>
+        <input type="text" name="industry" placeholder="Software / SaaS" />
+      </div>
+      <div class="field register-only company-only">
+        <label>Website <span class="field-hint">(optional)</span></label>
+        <input type="text" name="website" placeholder="https://acme.com" />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="At least 6 characters" required minlength="6" />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="authSubmit">
+        <span id="authSubmitLabel">Sign In</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/toast.js"></script>
+<script src="/js/session.js"></script>
+<script src="/js/landing.js"></script>
+</body>
+</html>
