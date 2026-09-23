@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Test Suite — Resumalyze v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/base.css" />
+<link rel="stylesheet" href="/css/components.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+<style>
+  .test-shell { max-width: 900px; }
+  .target-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+  }
+  .log-panel {
+    padding: 22px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83rem;
+    line-height: 1.7;
+    min-height: 260px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .log-section {
+    color: var(--teal-300);
+    font-weight: 700;
+    margin: 14px 0 6px;
+    letter-spacing: 0.02em;
+  }
+  .log-section:first-child { margin-top: 0; }
+  .log-line { display: flex; gap: 8px; align-items: flex-start; }
+  .log-line .icon { flex-shrink: 0; width: 16px; }
+  .log-pass .icon { color: var(--teal-400); }
+  .log-fail .icon { color: var(--danger); }
+  .log-fail .name { color: #fda4af; }
+  .log-error {
+    color: #fda4af;
+    padding-left: 24px;
+    font-size: 0.78rem;
+    opacity: 0.9;
+  }
+  .log-detail {
+    color: var(--white-faint);
+    padding-left: 24px;
+    font-size: 0.78rem;
+  }
+  .log-summary {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--glass-border);
+    font-weight: 700;
+  }
+  .spin {
+    display: inline-block;
+    animation: spin 0.8s linear infinite;
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="brand" style="text-decoration:none;">
+    <span class="brand-mark">R</span>
+    Resumalyze <span class="brand-version">v2.0</span>
+  </a>
+  <div class="nav-right">
+    <span class="text-faint" style="font-size:0.8rem;">Live API test suite</span>
+  </div>
+</nav>
+
+<main class="dashboard test-shell">
+  <div class="dashboard-header">
+    <div>
+      <h1>Test Suite</h1>
+      <p class="text-faint" style="margin:0 0 8px;">
+        Runs live, in this browser, straight against this deployment's API — no local machine involved.
+      </p>
+      <span class="chip target-chip" id="targetChip">target: —</span>
+    </div>
+    <button class="btn btn-primary" id="runBtn">&#9654; Run Test Suite</button>
+  </div>
+
+  <div class="stat-row">
+    <div class="glass stat-card">
+      <div class="stat-value" id="statPassed" style="color: var(--teal-300);">—</div>
+      <div class="stat-label">Passed</div>
+    </div>
+    <div class="glass stat-card">
+      <div class="stat-value" id="statFailed" style="color: var(--danger);">—</div>
+      <div class="stat-label">Failed</div>
+    </div>
+    <div class="glass stat-card">
+      <div class="stat-value" id="statDuration">—</div>
+      <div class="stat-label">Duration</div>
+    </div>
+  </div>
+
+  <div class="glass log-panel" id="logPanel">
+    <p class="text-faint">Click "Run Test Suite" to begin — it will register a fresh test company and applicant, post two job fixtures, and apply to each.</p>
+  </div>
+</main>
+
+<script src="/js/test-suite-runner.js"></script>
+</body>
+</html>
