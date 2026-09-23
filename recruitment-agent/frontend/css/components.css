@@ -229,6 +229,20 @@ select {
 .file-drop input[type='file'] {
   display: none;
 }
+.file-drop-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.file-drop-hint {
+  font-size: 0.74rem;
+  color: var(--white-faint);
+  margin-top: 4px;
+}
 .file-drop-name {
   color: var(--teal-300);
   font-weight: 600;

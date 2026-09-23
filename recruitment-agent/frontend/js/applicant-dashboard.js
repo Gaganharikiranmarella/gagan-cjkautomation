@@ -223,8 +223,8 @@
         <h4>Apply Now</h4>
         <label class="file-drop" id="fileDrop">
           <input type="file" id="resumeInput" accept=".pdf,.docx,.txt" />
-          <div>📄 Click to choose your resume</div>
-          <div class="text-faint" style="font-size:0.74rem; margin-top:4px;">PDF, DOCX or TXT — max 5MB</div>
+          <div class="file-drop-label">📄 Click to choose your resume</div>
+          <div class="file-drop-hint">PDF, DOCX or TXT — max 5MB</div>
           <div class="file-drop-name" id="fileDropName"></div>
         </label>
         <button class="btn btn-primary btn-block" id="applyBtn" style="margin-top:14px;" disabled>Submit Application</button>
