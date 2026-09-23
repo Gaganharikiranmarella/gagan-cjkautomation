@@ -64,7 +64,7 @@ async function listByCompany(companyId) {
 async function create(companyId, data) {
   const sql = getSql();
   const rows = await sql.query(
-    `INSERT INTO jobs (
+    `INSERT INTO jobs AS j (
        company_id, title, description, location, job_type, min_experience,
        skills_required, minimum_requirements, pay_min, pay_max, pay_currency,
        openings, deadline
@@ -92,11 +92,11 @@ async function create(companyId, data) {
 async function update(id, data) {
   const sql = getSql();
   const rows = await sql.query(
-    `UPDATE jobs SET
+    `UPDATE jobs AS j SET
        title = $2, description = $3, location = $4, job_type = $5, min_experience = $6,
        skills_required = $7, minimum_requirements = $8, pay_min = $9, pay_max = $10,
        pay_currency = $11, openings = $12, deadline = $13, status = $14, updated_at = now()
-     WHERE id = $1
+     WHERE j.id = $1
      RETURNING ${JOB_FIELDS}`,
     [
       id,

@@ -19,7 +19,7 @@ async function findByJobAndApplicant(jobId, applicantId) {
 async function create(data) {
   const sql = getSql();
   const rows = await sql.query(
-    `INSERT INTO applications (
+    `INSERT INTO applications AS a (
        job_id, applicant_id, resume_file_name, resume_text, score,
        matched_keywords, missing_keywords, status, ai_insights
      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
