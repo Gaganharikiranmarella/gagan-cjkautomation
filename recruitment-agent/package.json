@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node --watch backend/server.js",
-    "migrate": "node backend/scripts/migrate.js"
+    "migrate": "node backend/scripts/migrate.js",
+    "test": "node backend/scripts/test-suite.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
